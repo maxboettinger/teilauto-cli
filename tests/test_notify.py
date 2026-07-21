@@ -22,6 +22,7 @@ def _settings(**kw) -> Settings:
         window_min=30,
         interval_sec=120,
         prov_id="118",
+        api_key="test-key",
         channels=(),
         tg_chat_id="",
         ntfy_topic="",

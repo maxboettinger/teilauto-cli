@@ -18,7 +18,7 @@ except ModuleNotFoundError:  # Python 3.10
 DEFAULTS: dict = {
     "location": {"lat": 51.3455, "lng": 12.3821, "radius_m": 500},
     "defaults": {"min_fuel": 0.0, "window_min": 30, "interval_sec": 120},
-    "api": {"prov_id": "118"},
+    "api": {"prov_id": "118", "key": "ada76fb4-0561-40dd-50b4-2b780fb28a5f"},
     "notify": {
         "channels": [],
         "telegram": {"chat_id": ""},
@@ -175,6 +175,7 @@ class Settings:
     window_min: int
     interval_sec: int
     prov_id: str
+    api_key: str
     channels: tuple[str, ...]
     tg_chat_id: str
     ntfy_topic: str
@@ -196,6 +197,7 @@ def load_settings(path: Path | None = None) -> Settings:
             "defaults.interval_sec", get_value(merged, "defaults.interval_sec"), int
         ),
         prov_id=_cast("api.prov_id", get_value(merged, "api.prov_id"), str),
+        api_key=_cast("api.key", get_value(merged, "api.key"), str),
         channels=_cast("notify.channels", channels or (), tuple),
         tg_chat_id=_cast(
             "notify.telegram.chat_id", get_value(merged, "notify.telegram.chat_id") or "", str

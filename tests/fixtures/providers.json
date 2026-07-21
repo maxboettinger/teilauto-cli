@@ -1,0 +1,6 @@
+[
+  {"id": "1", "abbrev": "KA", "name": "stadtmobil karlsruhe", "country": "DE"},
+  {"id": "19", "abbrev": "TÜ", "name": "teilAuto Neckar-Alb", "country": "DE"},
+  {"id": "118", "abbrev": "TAM", "name": "teilAuto & cityflitzer Mitteldeutschland",
+   "publicId": "2016", "country": "DE", "timeZone": "Europe/Berlin"}
+]

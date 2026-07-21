@@ -17,6 +17,13 @@ def test_defaults_when_no_file(config_home):
     assert s.interval_sec == 120
     assert s.channels == ()
     assert s.ntfy_server == "https://ntfy.sh"
+    assert s.prov_id == "118"
+    assert s.api_key == "ada76fb4-0561-40dd-50b4-2b780fb28a5f"
+
+
+def test_env_override_api_key(config_home, monkeypatch):
+    monkeypatch.setenv("TEILAUTO_API_KEY", "another-key")
+    assert cfg.load_settings().api_key == "another-key"
 
 
 def test_file_overrides_defaults(config_home):

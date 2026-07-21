@@ -13,14 +13,17 @@ from teilauto.api.models import (
     Car,
     Price,
     Proposal,
+    Provider,
     TokenInfo,
     Unavailability,
     cars_from_poi,
 )
 
-# Public app key baked into the buchen.teilauto.net frontend JS.
-# It identifies the app (not a user) and only unlocks read-only data.
-API_KEY = "6b4d4759-8fd1-b25a-c099-09c2af9c70ce"
+# Public app key of the "Carsharing Deutschland" umbrella app (cantamen GmbH).
+# It identifies the app (not a user); its login-eligible operator set is a
+# superset covering every teilauto region plus most German Cantamen-based
+# operators, so one key serves all users. Override via config `api.key`.
+API_KEY = "ada76fb4-0561-40dd-50b4-2b780fb28a5f"
 BASE_URL = "https://de1.cantamen.de/casirest/v3"
 PROV_ID = "118"  # teilauto/CityFlitzer Mitteldeutschland
 
@@ -149,6 +152,18 @@ class CantamenClient:
         if isinstance(data, list):
             data = data[0] if data else {}
         return Price.from_api(data or {})
+
+    def login_providers(self) -> list[Provider]:
+        """Operators whose customers may log in with the current app key.
+
+        Deliberately scoped to action=CUSTOMER_LOGIN — the unfiltered
+        /providersettings list contains many operators that are bookable but
+        not login-eligible, and picking one of those makes login impossible.
+        """
+        data = self._request(
+            "GET", "/providers", params={"expand": "remark", "action": "CUSTOMER_LOGIN"}
+        )
+        return [Provider.from_api(item) for item in data or []]
 
     # -- member actions ------------------------------------------------------
 
