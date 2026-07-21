@@ -119,6 +119,27 @@ def test_exhausted_retries_raise_api_error(respx_mock):
         client.booking_proposals(lat=1, lng=2, radius_m=3, start=START, end=END)
 
 
+def test_login_providers_scoped_to_customer_login(respx_mock, providers_json):
+    route = respx_mock.get(f"{BASE_URL}/providers").mock(
+        return_value=httpx.Response(200, json=providers_json)
+    )
+    with CantamenClient() as client:
+        providers = client.login_providers()
+    assert [p.id for p in providers] == ["1", "19", "118"]
+    assert providers[2].abbrev == "TAM"
+    params = route.calls.last.request.url.params
+    assert params["action"] == "CUSTOMER_LOGIN"
+
+
+def test_custom_api_key_header(respx_mock, providers_json):
+    route = respx_mock.get(f"{BASE_URL}/providers").mock(
+        return_value=httpx.Response(200, json=providers_json)
+    )
+    with CantamenClient(api_key="my-key") as client:
+        client.login_providers()
+    assert route.calls.last.request.headers["x-api-key"] == "my-key"
+
+
 def test_cancel_booking_deletes(respx_mock):
     route = respx_mock.delete(f"{BASE_URL}/bookings/b-1").mock(return_value=httpx.Response(204))
     with CantamenClient(token_id="t") as client:

@@ -7,7 +7,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from teilauto.api.models import Booking, Car, Unavailability
+from teilauto.api.models import Booking, Car, Provider, Unavailability
 from teilauto.services.availability import CarAvailability
 
 console = Console()
@@ -80,6 +80,20 @@ def unavailability_table(items: list[Unavailability]) -> Table:
     table.add_column("Until")
     for item in items:
         table.add_row(local_time(item.start), local_time(item.end))
+    return table
+
+
+def providers_table(providers: list[Provider], current: str | None = None) -> Table:
+    table = Table(
+        title="Operators",
+        header_style="bold",
+        caption="Set yours with `teilauto config set api.prov_id <ID>`, then log in again.",
+    )
+    for column in ("ID", "Abbrev", "Name", "Selected"):
+        table.add_column(column)
+    for provider in providers:
+        selected = Text("✓", style="green") if provider.id == current else Text("")
+        table.add_row(provider.id, provider.abbrev or "—", provider.name or "—", selected)
     return table
 
 

@@ -42,12 +42,18 @@ class AppContext:
 
     def client(self) -> CantamenClient:
         token = self.token
-        return CantamenClient(token_id=token.id if token else None, verbose=self.verbose)
+        return CantamenClient(
+            token_id=token.id if token else None,
+            api_key=self.settings.api_key,
+            verbose=self.verbose,
+        )
 
     def require_auth_client(self) -> CantamenClient:
         if self.token is None:
             raise AuthRequiredError()
-        return CantamenClient(token_id=self.token.id, verbose=self.verbose)
+        return CantamenClient(
+            token_id=self.token.id, api_key=self.settings.api_key, verbose=self.verbose
+        )
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -71,6 +77,7 @@ from teilauto.cli.cars import cars  # noqa: E402
 from teilauto.cli.config_cmd import config_group  # noqa: E402
 from teilauto.cli.notify_cmd import notify  # noqa: E402
 from teilauto.cli.price import price  # noqa: E402
+from teilauto.cli.providers import providers  # noqa: E402
 from teilauto.cli.watch import watch_cmd  # noqa: E402
 
 cli.add_command(auth)
@@ -80,6 +87,7 @@ cli.add_command(cars)
 cli.add_command(config_group)
 cli.add_command(notify)
 cli.add_command(price)
+cli.add_command(providers)
 cli.add_command(watch_cmd)
 
 

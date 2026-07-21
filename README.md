@@ -116,6 +116,7 @@ teilauto notify test
 | `teilauto cars list` | List cars near a location, closest first. |
 | `teilauto cars show CAR_ID` | Car detail plus blocked time ranges (next 24h by default). |
 | `teilauto price CAR_ID` | Price of booking a car for a time window. Login required for real prices; unauthenticated requests return "unknown". For CityFlitzer the API always prices a fixed 48h worst case regardless of the requested window — actual billing follows usage. |
+| `teilauto providers list` | Operators you can log in to — pick your `api.prov_id` from here. |
 | `teilauto bookings list` | Your bookings (upcoming only by default). |
 | `teilauto bookings show BOOKING_ID` | One booking in detail. |
 | `teilauto bookings create CAR_ID` | Book a car for a time window (asks for confirmation; skip with `--yes`, required if you also pass `--json`). |
@@ -143,7 +144,8 @@ then environment overrides:
 | `defaults.min_fuel` | `0.0` | Default minimum fuel level (%) filter. |
 | `defaults.window_min` | `30` | Default booking/search window length in minutes. |
 | `defaults.interval_sec` | `120` | Default poll interval for `watch`/`autobook`, in seconds. |
-| `api.prov_id` | `'118'` | Cantamen provider id (teilauto Mitteldeutschland). |
+| `api.prov_id` | `'118'` | Your operator's Cantamen provider id (default: teilauto Mitteldeutschland) — see `teilauto providers list`. |
+| `api.key` | (Carsharing Deutschland app key) | App-level `x-api-key` sent with every request. The default covers all teilauto regions and most German Cantamen-based operators; rarely needs changing. |
 | `notify.channels` | `[]` | Active notification channels: `telegram`, `ntfy`, or both. |
 | `notify.telegram.chat_id` | `''` | Telegram chat/user id to message. |
 | `notify.ntfy.topic` | `''` | ntfy.sh topic to publish to. |
@@ -165,6 +167,23 @@ OS keyring first; if no keyring is available, a `secrets.json` file in the
 config directory with `chmod 600` permissions; environment variables always
 win over both. Your account password is never stored anywhere — only the
 session token returned by login.
+
+## Other operators (all teilauto regions, stadtmobil, …)
+
+The backend is multi-tenant: dozens of German carsharing operators share it,
+distinguished by a provider id. The default configuration is teilauto
+Mitteldeutschland (`118`); to use another operator, look up its id and save it:
+
+```bash
+teilauto providers list                    # login-eligible operators (no login needed)
+teilauto config set api.prov_id 19         # e.g. teilAuto Neckar-Alb (Tübingen)
+teilauto auth login                        # log in against that operator
+```
+
+Two things to know: the login is your account email or customer number
+(Kundennummer) — regional operators commonly use the Kundennummer — and after
+changing `api.prov_id` (or `api.key`) you need a fresh `teilauto auth login`,
+since the session token belongs to the operator it was issued for.
 
 ## JSON output & scripting
 
@@ -188,14 +207,17 @@ Exit codes are stable and meant for scripting:
 ## How it works / API notes
 
 teilauto-cli talks to the Cantamen `casirest/v3` backend at
-`https://de1.cantamen.de` — the same API the official `buchen.teilauto.net`
-booking site uses, reverse-engineered by watching that site's network traffic.
-Read-only endpoints (car listings, prices, availability) just need the public
-`x-api-key` baked into that site's frontend JavaScript; it identifies the app,
-not a user, so it's not treated as a secret here. Member actions (login,
-creating/cancelling bookings) use a bearer-style token from `POST /tokens`,
-scoped to provider id `118` (teilauto Mitteldeutschland). None of this is an
-official, documented, or supported API — see Responsible use below.
+`https://de1.cantamen.de` — the same multi-tenant API behind the official
+`buchen.teilauto.net` booking site and the teilAuto / Carsharing Deutschland
+Android apps, reverse-engineered from their traffic and app bundles. Every
+request carries a public `x-api-key` that identifies the *app*, not a user, so
+it's not treated as a secret here. The default is the Carsharing Deutschland
+umbrella app's key, whose login-eligible operator set covers every teilauto
+region and most other German Cantamen-based operators (override with the
+`api.key` config). Member actions (login, creating/cancelling bookings) use a
+session token from `POST /tokens`, scoped to the operator selected via
+`api.prov_id`. None of this is an official, documented, or supported API — see
+Responsible use below.
 
 ## Responsible use
 

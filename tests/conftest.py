@@ -42,6 +42,11 @@ def token_json():
 
 
 @pytest.fixture
+def providers_json():
+    return load_fixture("providers.json")
+
+
+@pytest.fixture
 def unavailabilities_json():
     return load_fixture("unavailabilities.json")
 

@@ -123,6 +123,21 @@ class Unavailability:
 
 
 @dataclass(frozen=True)
+class Provider:
+    id: str
+    abbrev: str | None
+    name: str | None
+
+    @classmethod
+    def from_api(cls, data: dict) -> Provider:
+        return cls(
+            id=str(data.get("id")),
+            abbrev=data.get("abbrev"),
+            name=data.get("name"),
+        )
+
+
+@dataclass(frozen=True)
 class TokenInfo:
     id: str
     expiry: str | None

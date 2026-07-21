@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `teilauto providers list` — the operators you can log in to (id, abbrev,
+  name), with the configured `api.prov_id` marked. Deliberately scoped to
+  `action=CUSTOMER_LOGIN`: the unfiltered provider list contains operators
+  that are bookable but not login-eligible, and picking one of those makes
+  login impossible.
+- Config key `api.key` (env: `TEILAUTO_API_KEY`) to override the app-level
+  `x-api-key`.
+
+### Changed
+
+- The default API key is now the "Carsharing Deutschland" umbrella app key,
+  whose login-eligible set covers every teilauto region and most other German
+  Cantamen-based operators — so `config set api.prov_id <ID>` (see
+  `providers list`) is all it takes to use another operator. Provider 118's
+  settings are byte-identical under the old and new key, so existing
+  Mitteldeutschland users are unaffected; a fresh `teilauto auth login` after
+  upgrading is recommended.
+- `auth login` now prompts for "Email or customer number" — regional operators
+  commonly use the customer number (Kundennummer) as the login.
+- `autobook --for` is now optional and defaults to `1h`. CityFlitzer bills
+  actual usage (first started hour in full, then 15-minute steps, plus
+  kilometers) and the backend rewrites the booking end to the real trip end,
+  so the window is a formality that only affects the availability check.
+
 ### Fixed
 
 - Car-type filtering now matches case-insensitively: the live API reports the
@@ -15,13 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Price parsing now understands the live `/prices` schema
   (`priceItems[].priceIncl.amount` + `code`); the legacy `gross`/`currency`
   shape remains as a fallback. Previously every price came back "unknown".
-
-### Changed
-
-- `autobook --for` is now optional and defaults to `1h`. CityFlitzer bills
-  actual usage (first started hour in full, then 15-minute steps, plus
-  kilometers) and the backend rewrites the booking end to the real trip end,
-  so the window is a formality that only affects the availability check.
 
 ### Removed
 
