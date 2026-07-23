@@ -66,6 +66,7 @@ def cli(ctx: click.Context, verbose: bool, quiet: bool) -> None:
 
 from teilauto.cli.auth import auth  # noqa: E402
 from teilauto.cli.autobook import autobook_cmd  # noqa: E402
+from teilauto.cli.bills import bills  # noqa: E402
 from teilauto.cli.bookings import bookings  # noqa: E402
 from teilauto.cli.cars import cars  # noqa: E402
 from teilauto.cli.config_cmd import config_group  # noqa: E402
@@ -75,6 +76,7 @@ from teilauto.cli.watch import watch_cmd  # noqa: E402
 
 cli.add_command(auth)
 cli.add_command(autobook_cmd)
+cli.add_command(bills)
 cli.add_command(bookings)
 cli.add_command(cars)
 cli.add_command(config_group)

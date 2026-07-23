@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `teilauto bills` — `list`, `download`: bill (Gebühren) summaries with the
+  accumulated total per currency, a `--year` filter, and download of the
+  itemized bill PDF (`billDocument`, inline base64 or reference URL).
+  Endpoint mapped from the official Android app.
+
+### Changed
+
+- `autobook --for` is now optional and defaults to `1h`. CityFlitzer bills
+  actual usage (first started hour in full, then 15-minute steps, plus
+  kilometers) and the backend rewrites the booking end to the real trip end,
+  so the window is a formality that only affects the availability check.
+
 ### Fixed
 
 - Car-type filtering now matches case-insensitively: the live API reports the
@@ -15,13 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Price parsing now understands the live `/prices` schema
   (`priceItems[].priceIncl.amount` + `code`); the legacy `gross`/`currency`
   shape remains as a fallback. Previously every price came back "unknown".
-
-### Changed
-
-- `autobook --for` is now optional and defaults to `1h`. CityFlitzer bills
-  actual usage (first started hour in full, then 15-minute steps, plus
-  kilometers) and the backend rewrites the booking end to the real trip end,
-  so the window is a formality that only affects the availability check.
 
 ### Removed
 

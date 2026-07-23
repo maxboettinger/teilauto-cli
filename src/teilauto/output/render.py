@@ -7,7 +7,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from teilauto.api.models import Booking, Car, Unavailability
+from teilauto.api.models import Bill, Booking, Car, Unavailability
 from teilauto.services.availability import CarAvailability
 
 console = Console()
@@ -80,6 +80,36 @@ def unavailability_table(items: list[Unavailability]) -> Table:
     table.add_column("Until")
     for item in items:
         table.add_row(local_time(item.start), local_time(item.end))
+    return table
+
+
+def bill_date_text(iso: str | None) -> str:
+    """Render an API bill date (ISO date or timestamp) as '%Y-%m-%d'."""
+    if not iso:
+        return "—"
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    except ValueError:
+        return iso
+    return dt.strftime("%Y-%m-%d")
+
+
+def bills_table(bills: list[Bill], totals: dict[str, float]) -> Table:
+    total_text = ", ".join(f"{amount:.2f} {currency}" for currency, amount in totals.items())
+    table = Table(
+        title="Bills",
+        header_style="bold",
+        caption=f"{len(bills)} bill(s) · total {total_text or '—'}",
+    )
+    for column in ("ID", "Number", "Date", "Amount"):
+        table.add_column(column, justify="right" if column == "Amount" else "left")
+    for bill in bills:
+        amount = (
+            f"{bill.gross_amount:.2f} {bill.currency or ''}".rstrip()
+            if bill.gross_amount is not None
+            else "—"
+        )
+        table.add_row(bill.id, bill.bill_number or "—", bill_date_text(bill.bill_date), amount)
     return table
 
 
