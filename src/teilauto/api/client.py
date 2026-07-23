@@ -9,6 +9,8 @@ import httpx
 
 from teilauto.api.errors import ApiError, AuthRequiredError, NotFoundError, RateLimitedError
 from teilauto.api.models import (
+    Bill,
+    BillDocument,
     Booking,
     Car,
     Price,
@@ -186,3 +188,25 @@ class CantamenClient:
 
     def cancel_booking(self, booking_id: str) -> None:
         self._request("DELETE", f"/bookings/{booking_id}")
+
+    def list_bills(self, *, expand_document: bool = False) -> list[Bill]:
+        expand = ["customerId"]
+        if expand_document:
+            expand.append("billDocument")
+        data = self._request("GET", "/bills", params={"expand": expand, "sort": "-billDate"})
+        # Tolerate a wrapped object; the app treats the response as a plain array.
+        if isinstance(data, dict):
+            data = data.get("items") or data.get("bills") or []
+        return [Bill.from_api(item) for item in data or []]
+
+    def download_bill_document(self, document: BillDocument) -> bytes:
+        if document.base64_string:
+            return base64.b64decode(document.base64_string)
+        if document.reference:
+            resp = self._http.get(document.reference, follow_redirects=True)
+            if resp.status_code == 401:
+                raise AuthRequiredError()
+            if resp.status_code >= 400:
+                raise ApiError(f"Document download failed ({resp.status_code}).")
+            return resp.content
+        raise ApiError("Bill has no downloadable document.")

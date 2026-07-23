@@ -112,6 +112,57 @@ class Booking:
 
 
 @dataclass(frozen=True)
+class BillDocument:
+    reference: str | None
+    base64_string: str | None
+    mime_type: str | None
+    file_name: str | None
+
+    @classmethod
+    def from_api(cls, data: dict) -> BillDocument:
+        return cls(
+            reference=data.get("reference"),
+            base64_string=data.get("base64String"),
+            mime_type=data.get("mimeType"),
+            file_name=data.get("fileName"),
+        )
+
+
+@dataclass(frozen=True)
+class Bill:
+    id: str
+    bill_number: str | None
+    bill_date: str | None
+    gross_amount: float | None
+    currency: str | None
+    document: BillDocument | None
+    raw: dict = field(default_factory=dict)
+
+    @classmethod
+    def from_api(cls, data: dict) -> Bill:
+        # Wire shape: the amount is integer cents in `sum.grossAmount` and the                              
+        # currency is a top-level bill field. A Price-style nested `sum.gross`                              
+        # is tolerated as fallback.
+        total = data.get("sum") or {}
+        amount = total.get("grossAmount")
+        currency = total.get("currency") or data.get("currency")
+        if amount is None:
+            gross = total.get("gross") or {}
+            amount = gross.get("amount")
+            currency = gross.get("currency") or currency
+        document = data.get("billDocument")
+        return cls(
+            id=str(data.get("id")),
+            bill_number=data.get("billNumber"),
+            bill_date=data.get("billDate"),
+            gross_amount=amount / 100 if amount is not None else None,
+            currency=currency,
+            document=BillDocument.from_api(document) if document else None,
+            raw=data,
+        )
+
+
+@dataclass(frozen=True)
 class Unavailability:
     start: str | None
     end: str | None

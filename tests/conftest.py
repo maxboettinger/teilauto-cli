@@ -37,6 +37,11 @@ def bookings_json():
 
 
 @pytest.fixture
+def bills_json():
+    return load_fixture("bills.json")
+
+
+@pytest.fixture
 def token_json():
     return load_fixture("token.json")
 

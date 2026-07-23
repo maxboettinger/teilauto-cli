@@ -1,0 +1,10 @@
+[
+  {"id": "r-3", "billNumber": "2026-07-001", "billDate": "2026-07-01T12:08:09+02:00",
+   "provId": "19", "currency": "EUR", "sum": {"grossAmount": 2450}, "vatSums": []},
+  {"id": "r-2", "billNumber": "2026-06-001", "billDate": "2026-06-01",
+   "sum": {"gross": {"amount": 1200, "currency": "EUR"}},
+   "billDocument": {"reference": null, "base64String": "JVBERi10ZXN0",
+                    "mimeType": "application/pdf", "fileName": "rechnung-2026-06.pdf"}},
+  {"id": "r-1", "billNumber": "2025-12-001", "billDate": "2025-12-01",
+   "currency": "EUR", "sum": {"grossAmount": 990}}
+]

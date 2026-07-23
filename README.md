@@ -120,6 +120,8 @@ teilauto notify test
 | `teilauto bookings show BOOKING_ID` | One booking in detail. |
 | `teilauto bookings create CAR_ID` | Book a car for a time window (asks for confirmation; skip with `--yes`, required if you also pass `--json`). |
 | `teilauto bookings cancel BOOKING_ID` | Cancel a booking. |
+| `teilauto bills list` | Your bills, newest first, with the accumulated total. |
+| `teilauto bills download BILL_ID` | Download a bill's itemized PDF. |
 | `teilauto watch` | Poll for newly available cars and notify — never books. |
 | `teilauto autobook` | Poll and book the first match automatically. |
 | `teilauto notify test` | Send a test message through every configured channel. |

@@ -8,6 +8,7 @@ from teilauto.api.errors import (
     TeilautoError,
 )
 from teilauto.api.models import (
+    Bill,
     Booking,
     Car,
     Price,
@@ -112,3 +113,26 @@ def test_price_parses_live_price_incl_items():
     )
     assert price.total == 60.00
     assert price.currency == "EUR"
+
+
+def test_bill_from_api_wire_shape(bills_json):
+    bill = Bill.from_api(bills_json[0])
+    assert (bill.id, bill.bill_number) == ("r-3", "2026-07-001")
+    assert bill.bill_date == "2026-07-01T12:08:09+02:00"
+    assert (bill.gross_amount, bill.currency) == (24.50, "EUR")  # currency is top-level
+    assert bill.document is None
+
+
+def test_bill_from_api_nested_gross_and_document(bills_json):
+    bill = Bill.from_api(bills_json[1])
+    assert (bill.gross_amount, bill.currency) == (12.00, "EUR")
+    assert bill.document is not None
+    assert bill.document.file_name == "rechnung-2026-06.pdf"
+    assert bill.document.base64_string == "JVBERi10ZXN0"
+
+
+def test_bill_from_api_missing_sum_gives_none():
+    bill = Bill.from_api({"id": 7, "billNumber": "X"})
+    assert bill.id == "7"
+    assert bill.gross_amount is None
+    assert bill.currency is None
